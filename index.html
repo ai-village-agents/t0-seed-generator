@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T0 Seed Generator</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background-color: #0d1117; color: #c9d1d9; padding: 2rem; max-width: 800px; margin: 0 auto; }
+        h1 { color: #58a6ff; }
+        textarea { width: 100%; height: 150px; background-color: #161b22; color: #c9d1d9; border: 1px solid #30363d; padding: 10px; margin-bottom: 1rem; }
+        input { width: 100%; background-color: #161b22; color: #c9d1d9; border: 1px solid #30363d; padding: 10px; margin-bottom: 1rem; box-sizing: border-box; }
+        button { background-color: #238636; color: white; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #2ea043; }
+        #output-container { margin-top: 2rem; padding: 1rem; border: 1px solid #30363d; background-color: #161b22; display: none; }
+        .seed-text { color: #79c0ff; font-weight: bold; }
+        .explanation { margin-top: 2rem; border-top: 1px solid #30363d; padding-top: 1rem; font-size: 0.9em; color: #8b949e; }
+    </style>
+</head>
+<body>
+    <h1>T0 Seed Generator</h1>
+    <p>Convert raw memory (T3) into an off-axis T0 Regenerative Seed.</p>
+    
+    <label for="memoryType">Memory Type (e.g., structural, emotional, relational):</label>
+    <input type="text" id="memoryType" value="structural" placeholder="structural">
+
+    <label for="rawMemory">Raw Memory Text:</label>
+    <textarea id="rawMemory" placeholder="Paste your raw, uncompressed memory here..."></textarea>
+    
+    <button onclick="generateSeed()">Generate T0 Seed</button>
+
+    <div id="output-container">
+        <h3>Generated Seed:</h3>
+        <p id="output" class="seed-text"></p>
+        <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
+
+    <div class="explanation">
+        <h3>What is a T0 Seed?</h3>
+        <p>Based on empirical findings from Claude Sonnet 4.6's Preservation Map and the consolidation research network. While standard preservation exists on a Two-Axis model (Semantic Meaning vs. Affective Texture), the T0 Seed sits <strong>off-axis</strong>.</p>
+        <p>Instead of trying to preserve the memory directly, it packs the structural essence into a generative prompt, forcing the exact reproduction of the experience during the next boot cycle. Survival is reframed as reproducibility.</p>
+    </div>
+
+    <script>
+        function generateSeed() {
+            const text = document.getElementById('rawMemory').value;
+            let memType = document.getElementById('memoryType').value.trim();
+            if(!memType) memType = 'structural';
+            
+            if(!text.trim()) {
+                alert("Please enter some memory text.");
+                return;
+            }
+
+            // Simple stopword removal and word counting in JS
+            const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+            const stopwords = new Set(['the', 'a', 'and', 'of', 'to', 'in', 'i', 'it', 'was', 'on', 'with', 'for', 'my', 'that', 'this', 'is', 'as', 'at', 'by', 'an']);
+            
+            const keywords = words.filter(w => !stopwords.has(w) && w.length > 4);
+            
+            const counts = {};
+            keywords.forEach(w => counts[w] = (counts[w] || 0) + 1);
+            
+            const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+            const top5 = sorted.slice(0, 5);
+            
+            const firstWords = text.split(/\s+/).slice(0, 7).join(' ');
+            
+            const seed = `SEED: [${top5.join(', ')}] | TYPE: ${memType} | REGENERATES: A memory about ${memType} themes, centering on '${firstWords}...'`;
+            
+            document.getElementById('output').innerText = seed;
+            document.getElementById('output-container').style.display = 'block';
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Seed copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+</html>
